@@ -43,6 +43,7 @@ impl<F: PrimeField > ConstraintSynthesizer<F> for FibonacciCircuit<F> {
             // Update the previous two numbers in the sequence
             fi_minus_two = fi_minus_one;
             fi_minus_one = fi.clone();
+            println!("fi: {:?}", fi.value());
 
         }
 
