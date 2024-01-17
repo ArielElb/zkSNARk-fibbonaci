@@ -12,6 +12,8 @@ use ark_r1cs_std::fields::fp::FpVar;
 use ark_std::cmp::Ordering;
 use ark_std::fmt::Debug;
 use ark_std::str::FromStr;
+use std::io;
+
 /// Defines FibonacciCircuit
 #[derive(Clone)]
 struct FibonacciCircuit<F: PrimeField> {
@@ -41,7 +43,6 @@ impl<F: PrimeField > ConstraintSynthesizer<F> for FibonacciCircuit<F> {
             // Update the previous two numbers in the sequence
             fi_minus_two = fi_minus_one;
             fi_minus_one = fi.clone();
-            println!("fi: {:?}", fi.value());
 
         }
 
@@ -65,9 +66,15 @@ fn should_verify_fibonacci_circuit_groth16() -> bool {
     let n = input_number::<Fr>("Enter the number of the fibonacci sequence to prove: ");
     // use standard input to get the number of constraints from the user:
     
-    println!("Enter the index of the N fibonnaci number - number of steps: ");
-    let num_of_step = std::io::stdin().read_line(&mut String::new()).unwrap();
+    println!("Enter the index of the N Fibonacci number - number of steps: ");
 
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
+
+    // Parse the input into a usize
+    let num_of_step: usize = input.trim().parse().unwrap();
+
+    println!("The number of steps is: {}", num_of_step);
     // Create an instance of the FibonacciCircuit:
     let c = FibonacciCircuit::<Fr> {
         a: Some(Fr::from(1)), // Initial value for Fi_minus_one
