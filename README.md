@@ -12,21 +12,15 @@ This program implements a proof of the Fibonacci sequence using the Groth16 zk-S
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/fibonacci-proof.git
-    cd fibonacci-proof
+    git clone https://github.com/ArielElb/zkSNARk-fibbonaci.git
+    cd zkSNARk-fibbonaci
     ```
 
-2. Build the program:
-
-    ```bash
-    cargo build --release
+2. Build and run the program:
+    ```
+    cargo run
     ```
 
-3. Run the program:
-
-    ```bash
-    cargo run --release
-    ```
 
 4. Follow the prompts to enter the index of the Fibonacci number and the number of steps to perform in the sequence.
 
