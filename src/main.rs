@@ -1,8 +1,8 @@
 use ark_r1cs_std::{
-    prelude::{AllocVar, Boolean, EqGadget, FieldVar, UInt8, R1CSVar},
+    prelude::{AllocVar, EqGadget, FieldVar, R1CSVar},
 };
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError, ConstraintSynthesizer};
-use ark_ff::{Field, PrimeField};
+use ark_ff::{ PrimeField};
 use ark_groth16::{Groth16};
 use ark_bls12_381::{Bls12_381, Fr};
 use rand::rngs::StdRng;
@@ -12,7 +12,6 @@ use ark_r1cs_std::fields::fp::FpVar;
 use ark_std::cmp::Ordering;
 use ark_std::fmt::Debug;
 use ark_std::str::FromStr;
-use std::io;
 
 /// Defines FibonacciCircuit
 #[derive(Clone)]
@@ -85,7 +84,7 @@ fn should_verify_fibonacci_circuit_groth16() -> bool {
     };
     let (pk, vk) = Groth16::<Bls12_381>::circuit_specific_setup(c.clone(), &mut rng).unwrap();
     let proof = Groth16::<Bls12_381>::prove(&pk, c.clone(), &mut rng).unwrap();
-    if let Err(err) = Groth16::<Bls12_381>::verify(&vk, &vec![c.n.unwrap()], &proof) {
+    if let Err(_err) = Groth16::<Bls12_381>::verify(&vk, &vec![c.n.unwrap()], &proof) {
 
         eprintln!("Verification failed: your circuit constraints are not satisfied.");
         return false;
@@ -99,4 +98,8 @@ fn main() {
     if !result {
         eprintln!("Circuit constraints are not satisfied.");
     }
+    else {
+        println!("Circuit constraints are satisfied: your fibonacci can be calculated in the number of steps you entered.");
+    }
+    
 }
