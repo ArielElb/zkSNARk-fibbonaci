@@ -12,7 +12,7 @@ use ark_r1cs_std::fields::fp::FpVar;
 use ark_std::cmp::Ordering;
 use ark_std::fmt::Debug;
 use ark_std::str::FromStr;
-
+use std::time::{Instant};
 /// Defines FibonacciCircuit
 #[derive(Clone)]
 struct FibonacciCircuit<F: PrimeField> {
@@ -21,6 +21,8 @@ struct FibonacciCircuit<F: PrimeField> {
     pub n: Option<F>,
     pub numb_of_constraints: usize,
 }
+
+static mut START_TIME: Option<Instant> = None;
 
 impl<F: PrimeField > ConstraintSynthesizer<F> for FibonacciCircuit<F> {
     fn generate_constraints(self, cs: ConstraintSystemRef<F>) -> Result<(), SynthesisError> {
@@ -75,6 +77,9 @@ fn should_verify_fibonacci_circuit_groth16() -> bool {
     let num_of_step: usize = input.trim().parse().unwrap();
 
     println!("The number of steps is: {}", num_of_step);
+    unsafe {
+        START_TIME = Some(Instant::now()); // take the time we start the proove
+    }   
     // Create an instance of the FibonacciCircuit:
     let c = FibonacciCircuit::<Fr> {
         a: Some(Fr::from(1)), // Initial value for Fi_minus_one
@@ -95,11 +100,16 @@ fn should_verify_fibonacci_circuit_groth16() -> bool {
 
 fn main() {
     let result = should_verify_fibonacci_circuit_groth16();
+    let elapsed_time = unsafe {
+        START_TIME.unwrap().elapsed() // calculate the elapsed time
+
+    };
     if !result {
         eprintln!("Circuit constraints are not satisfied.");
     }
     else {
         println!("Circuit constraints are satisfied: your fibonacci can be calculated in the number of steps you entered.");
     }
-    
+
+    println!("Time taken: {}.{:03} seconds", elapsed_time.as_secs(), elapsed_time.subsec_millis());// print the amount of time the proof took
 }
