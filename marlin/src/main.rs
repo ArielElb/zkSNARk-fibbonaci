@@ -69,7 +69,7 @@ fn main() {
 
 // Create the Fiat-Shamir RNG using the hash function
     type PC = SonicKZG10<Bls12_381, DensePolynomial<Fr>>;
-    let universal_srs = Marlin::<Fr, PC, SimpleHashFiatShamirRng<FiatShamirPoseidonRng<Fr>, FiatShamirPoseidonRng<Fr>>>::universal_setup(max_degree, max_degree, max_degree, rng).unwrap();
+    let universal_srs = Marlin::<Fr, PC, SimpleHashFiatShamirRng<FiatShamirPoseidonRng<Fr>, PoseidonSponge<Fr>>>::universal_setup(max_degree, max_degree, max_degree, rng).unwrap();
 
     // Generate random secret values x and y
     let x = Fr::rand(rng);
