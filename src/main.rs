@@ -13,6 +13,8 @@ use ark_std::cmp::Ordering;
 use ark_std::fmt::Debug;
 use ark_std::str::FromStr;
 use std::time::{Instant};
+use std::mem;
+
 /// Defines FibonacciCircuit
 #[derive(Clone)]
 struct FibonacciCircuit<F: PrimeField> {
@@ -63,6 +65,9 @@ fn input_number<F: PrimeField>(message: &str) -> F  where <F as FromStr>::Err: D
 }
 fn should_verify_fibonacci_circuit_groth16() -> bool {
     let mut rng = StdRng::seed_from_u64(0u64);
+    //enter the 2 first numbers of fibonacci
+    let a = input_number::<Fr>("Enter the first number  ");
+    let b = input_number::<Fr>("Enter the second number  ");
     // enter the number of the fibonacci sequence to prove from the user:
 
     let n = input_number::<Fr>("Enter the number of the fibonacci sequence to prove: ");
@@ -82,13 +87,14 @@ fn should_verify_fibonacci_circuit_groth16() -> bool {
     }   
     // Create an instance of the FibonacciCircuit:
     let c = FibonacciCircuit::<Fr> {
-        a: Some(Fr::from(1)), // Initial value for Fi_minus_one
-        b: Some(Fr::from(0)), // Initial value for Fi_minus_two
+        a: Some(a), // Initial value for Fi_minus_one
+        b: Some(b), // Initial value for Fi_minus_two
         n: Some(n), // The number of the fibonacci sequence to prove
         numb_of_constraints: num_of_step,// Number of steps to perform in the sequence
     };
     let (pk, vk) = Groth16::<Bls12_381>::circuit_specific_setup(c.clone(), &mut rng).unwrap();
     let proof = Groth16::<Bls12_381>::prove(&pk, c.clone(), &mut rng).unwrap();
+    eprintln!("the size of the proof is: {}", mem::size_of_val(&proof));
     if let Err(_err) = Groth16::<Bls12_381>::verify(&vk, &vec![c.n.unwrap()], &proof) {
 
         eprintln!("Verification failed: your circuit constraints are not satisfied.");
