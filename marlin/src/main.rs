@@ -6,9 +6,8 @@ use ark_std::{test_rng, UniformRand};
 use ark_poly_commit::sonic_pc::SonicKZG10;
 use ark_relations::lc;
 use rand::{Error, RngCore};
-use ark_sponge::{CryptographicSponge, poseidon::PoseidonSponge,FieldBasedCryptographicSponge};
-use crate::Marlin;
-use crate::rng::FiatShamirRng;
+use ark_sponge::{poseidon::PoseidonSponge, FieldBasedCryptographicSponge};
+use crate::{Marlin, SimpleHashFiatShamirRng};
 
 // Define a simple circuit to prove x * y = 42
 struct MultiplicationCircuit<F: Field> {
@@ -70,8 +69,7 @@ fn main() {
 
 // Create the Fiat-Shamir RNG using the hash function
     type PC = SonicKZG10<Bls12_381, DensePolynomial<Fr>>;
-    type FS = FiatShamirPoseidonRng<Fr>; // Using PoseidonSponge as the Fiat-Shamir transformation
-    let universal_srs = Marlin::<Fr, PC, FiatShamirRng>::universal_setup(max_degree, max_degree, max_degree, rng).unwrap();
+    let universal_srs = Marlin::<Fr, PC, SimpleHashFiatShamirRng<FiatShamirPoseidonRng<Fr>, FiatShamirPoseidonRng<Fr>>>::universal_setup(max_degree, max_degree, max_degree, rng).unwrap();
 
     // Generate random secret values x and y
     let x = Fr::rand(rng);
@@ -101,3 +99,4 @@ fn main() {
         println!("Proof verification failed.");
     }
 }
+
