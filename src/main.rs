@@ -121,11 +121,10 @@ fn main() {
         eprintln!("Usage: {} <a> <b> <num_of_steps>", args[0]);
         return;
     }
-    let base = 2u32;
     let a = Fr::from_str(&args[1]).unwrap();
     let b = Fr::from_str(&args[2]).unwrap();
-    let power_from_user: usize = args[3].parse().unwrap();
-    let num_of_steps = 2u32.pow(power_from_user as u32);
+    let power_from_user: u32 = args[3].parse().unwrap();
+    let num_of_steps = 2u32.pow(power_from_user);
 
     println!("a: {:?}", a);
     println!("b: {:?}", b);
