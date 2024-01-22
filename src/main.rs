@@ -107,10 +107,10 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize) -
         prove_elapsed_time.as_secs(),
         prove_elapsed_time.subsec_millis()
     );
-    eprintln!("The size of the proof is: {}", mem::size_of_val(&proof));
+    eprintln!("The size of the proof is: {} bytes", mem::size_of_val(&proof));
     // print the size of the bls12_381:
 
-    ;
+    
     // Verifying
     let verify_start_time = Instant::now();
     // let the inputs be num of steps
@@ -139,16 +139,16 @@ fn main() {
         eprintln!("Usage: {} <a> <b> <num_of_steps>", args[0]);
         return;
     }
-
     let a = Fr::from_str(&args[1]).unwrap();
     let b = Fr::from_str(&args[2]).unwrap();
-    let num_of_steps: usize = args[3].parse().unwrap();
+    let power_from_user: u32 = args[3].parse().unwrap();
+    let num_of_steps = 2u32.pow(power_from_user);
 
     println!("a: {:?}", a);
     println!("b: {:?}", b);
     println!("num_of_steps: {:?}", num_of_steps);
 
-    let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps);
+    let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps as usize);
     let elapsed_time = unsafe { START_TIME.unwrap().elapsed() };
     if !result {
         eprintln!("Circuit constraints are not satisfied.");
