@@ -1,3 +1,4 @@
+use std::any::type_name;
 use ark_r1cs_std::{
     prelude::{AllocVar, EqGadget, R1CSVar},
 };
@@ -13,8 +14,13 @@ use std::mem;
 use std::env;
 use ark_snark::SNARK;
 use ark_std::str::FromStr;
-
-/// Defines FibonacciCircuit
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+//static mut GLOBAL_STRING: &str = "Your global string here";
+lazy_static! {
+    static ref GLOBAL_STRING: Mutex<String> = Mutex::new(String::new());
+}
+//static mut GLOBAL_VARIABLE:Option<Fr>  = Option::from(Fr::from_str("2").unwrap());
 #[derive(Clone)]
 struct FibonacciCircuit<F: PrimeField> {
     pub a: Option<F>,
@@ -24,7 +30,6 @@ struct FibonacciCircuit<F: PrimeField> {
 }
 
 static mut START_TIME: Option<Instant> = None;
-
 impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
     fn generate_constraints(mut self, cs: ConstraintSystemRef<F>) -> Result<(), SynthesisError> {
         let mut fi_minus_one =
@@ -33,19 +38,33 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
             FpVar::<F>::new_witness(cs.clone(), || self.b.ok_or(SynthesisError::AssignmentMissing))?;
         // initialize fi as public input
         let mut fi = FpVar::<F>::new_input(cs.clone(), || Ok(F::zero()))?;
-
-     
-
-
         // do the loop only when verifying the circuit
         for _i in 0..self.numb_of_steps {
             fi = fi_minus_one.clone() + &fi_minus_two;
             fi.enforce_equal(&(&fi_minus_one + &fi_minus_two))?;
             fi_minus_two = fi_minus_one;
             fi_minus_one = fi.clone();
-            println!("fi: {:?}", fi.value());
         }
-      
+        match fi.value() {
+            Ok(val) => unsafe {
+                // Do something with the value
+                println!("Value of fi: {:?}", val.to_string());
+                let val_str = val.to_string();
+                let mut global_str = GLOBAL_STRING.lock().unwrap();
+                *global_str = val_str;
+                //GLOBAL_STRING = &val.to_string().clone();
+                //println!("{}",val[0]);
+                //println!("{}",fi.value().unwrap().type_name());
+                //GLOBAL_VARIABLE = fi.value().unwrap();
+            },
+            Err(e) => {
+                if e == SynthesisError::AssignmentMissing {
+                    // Handle the AssignmentMissing error
+                } else {
+                    // Handle other types of errors
+                }
+            }
+        }
         Ok(())
     }
 }
@@ -70,7 +89,6 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize) -
     unsafe {
         START_TIME = Some(Instant::now());
     }
-
     let c = FibonacciCircuit::<Fr> {
         a: Some(a),
         b: Some(b),
@@ -143,4 +161,6 @@ fn main() {
         elapsed_time.as_secs(),
         elapsed_time.subsec_millis()
     );
+    let global_str = GLOBAL_STRING.lock().unwrap();
+    println!("{}", *global_str);
 }

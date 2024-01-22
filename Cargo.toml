@@ -19,3 +19,4 @@ ark-groth16 = { version = "^0.4.0", default-features = false }
 ark-serialize = { version = "^0.4.0", default-features = false }
 ark-crypto-primitives = { version = "^0.4.0", default-features = true, features = [ "r1cs" ] }
 rand = "0.8.5"
+lazy_static = "1.4.0"

@@ -1,0 +1,1 @@
+Marlin<Fp256<FrParameters>, SonicKZG10<ark_ec::models::bls12::Bls12<ark_bls12_381::Parameters>, DensePolynomial<Fp256<FrParameters>>>, dyn FiatShamirRng>
