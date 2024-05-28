@@ -28,7 +28,18 @@ struct FibonacciCircuit<F: PrimeField> {
     pub numb_of_steps: usize,
     pub result: Option<F>,
 }
+fn fibonacci_steps(a: u64, b: u64, steps: u32) -> u64 {
+    let mut x = a;
+    let mut y = b;
 
+    for _ in 0..steps {
+        let next = x + y;
+        x = y;
+        y = next;
+    }
+
+    x
+}
 static mut START_TIME: Option<Instant> = None;
 impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
     fn generate_constraints(mut self, cs: ConstraintSystemRef<F>) -> Result<(), SynthesisError> {
@@ -36,6 +47,8 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
             FpVar::<F>::new_witness(cs.clone(), || self.a.ok_or(SynthesisError::AssignmentMissing))?;
         let mut fi_minus_two =
             FpVar::<F>::new_witness(cs.clone(), || self.b.ok_or(SynthesisError::AssignmentMissing))?;
+        let saved_result = FpVar::<F>::new_witness(cs.clone(), || self.result.ok_or(SynthesisError::AssignmentMissing))?;
+
         // initialize fi as public input
         let mut fi = FpVar::<F>::new_input(cs.clone(), || Ok(F::zero()))?;
         // do the loop only when verifying the circuit
@@ -52,6 +65,7 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
                 let val_str = val.to_string();
                 let mut global_str = GLOBAL_STRING.lock().unwrap();
                 *global_str = val_str;
+                
                 //GLOBAL_STRING = &val.to_string().clone();
                 //println!("{}",val[0]);
                 //println!("{}",fi.value().unwrap().type_name());
@@ -65,6 +79,7 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
                 }
             }
         }
+        fi.enforce_equal(&(&saved_result))?;
         Ok(())
     }
 }
@@ -93,7 +108,7 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize) -
         a: Some(a),
         b: Some(b),
         numb_of_steps,
-        result: None, // Initialize fi as None
+        result: fibonacci_steps(a,b,num_of_steps), // Initialize fi as None
     };
 
     // Proving
@@ -155,7 +170,7 @@ fn main() {
     } else {
         println!("Circuit constraints are satisfied: your fibonacci can be calculated in the number of steps you entered.");
     }
-
+    result.
     println!(
         "Total time taken: {}.{:03} seconds",
         elapsed_time.as_secs(),
