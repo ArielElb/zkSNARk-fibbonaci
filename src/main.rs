@@ -52,7 +52,7 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
         // initialize fi as public input
         let mut fi = FpVar::<F>::new_input(cs.clone(), || Ok(F::zero()))?;
         // do the loop only when verifying the circuit
-        for _i in 0..self.numb_of_steps {
+        for _i in 0..self.numb_of_steps-1 {
             fi = fi_minus_one.clone() + &fi_minus_two;
             fi.enforce_equal(&(&fi_minus_one + &fi_minus_two))?;
             fi_minus_two = fi_minus_one;
@@ -79,6 +79,7 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
                 }
             }
         }
+       // println!("{}",saved_result.value().unwrap());
              fi.enforce_equal(&(&saved_result))?;
 
         Ok(())
@@ -160,8 +161,10 @@ fn main() {
     let power_from_user: u32 = args[3].parse().unwrap();
     let num_of_steps = 2u32.pow(power_from_user);
     let check=fibonacci_steps(u64::from_str(&args[1]).unwrap(),u64::from_str(&args[2]).unwrap(),num_of_steps);
-    let res= Fr::from(check);
+    println!("check is {:?}", check);
 
+    let res= Fr::from(check);
+    //let res=Fr::from(55);
     println!("a: {:?}", a);
     println!("b: {:?}", b);
     println!("num_of_steps: {:?}", num_of_steps);
