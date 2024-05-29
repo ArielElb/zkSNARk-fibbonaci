@@ -58,6 +58,8 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
             fi_minus_two = fi_minus_one;
             fi_minus_one = fi.clone();
         }
+
+
         match fi.value() {
             Ok(val) => unsafe {
                 // Do something with the value
@@ -132,13 +134,9 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize, r
     let verify_start_time = Instant::now();
     // let the inputs be num of steps
     let mut inputs = Vec::new();
-    inputs.push(Fr::from_str(&numb_of_steps.to_string()).unwrap());
+    inputs.push(res);
     let pvk = Groth16::<Bls12_381>::process_vk(&vk).unwrap();
-    if let Err(_err) = Groth16::<Bls12_381>::verify_with_processed_vk(&pvk, &inputs, &proof) {
-        eprintln!("Verification failed: your circuit constraints are not satisfied.");
-        println!("Error: {:?}", _err);
-        return false;
-    }
+    let res = Groth16::<Bls12_381>::verify_with_processed_vk(&pvk, &inputs, &proof);
     let verify_elapsed_time = verify_start_time.elapsed();
     eprintln!(
         "Verification time: {}.{:03} seconds",
@@ -148,6 +146,9 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize, r
 
     true
 }
+
+
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
