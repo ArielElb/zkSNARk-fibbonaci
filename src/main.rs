@@ -161,10 +161,12 @@ fn main() {
     let b = Fr::from_str(&args[2]).unwrap();
     let power_from_user: u32 = args[3].parse().unwrap();
     let num_of_steps = 2u32.pow(power_from_user);
+
     let check=fibonacci_steps(u64::from_str(&args[1]).unwrap(),u64::from_str(&args[2]).unwrap(),num_of_steps);
     println!("check is {:?}", check);
 
     let res= Fr::from(check);
+    
     //let res=Fr::from(55);
     println!("a: {:?}", a);
     println!("b: {:?}", b);
