@@ -79,7 +79,8 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
                 }
             }
         }
-        fi.enforce_equal(&(&saved_result))?;
+             fi.enforce_equal(&(&saved_result))?;
+
         Ok(())
     }
 }
@@ -95,7 +96,7 @@ where
     n
 }
 
-fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize) -> bool {
+fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize, res: Fr) -> bool {
     // set the seed for the random number generator as the security parameter :
     // 32 bytes for 256-bit security level, 48 bytes for 384-bit security level, and 64 bytes for 512-bit security level:
     let seed = [0u8; 32];
@@ -108,7 +109,7 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize) -
         a: Some(a),
         b: Some(b),
         numb_of_steps,
-        result: fibonacci_steps(a,b,num_of_steps), // Initialize fi as None
+        result: Some(res), // Initialize fi as None
     };
 
     // Proving
@@ -158,19 +159,19 @@ fn main() {
     let b = Fr::from_str(&args[2]).unwrap();
     let power_from_user: u32 = args[3].parse().unwrap();
     let num_of_steps = 2u32.pow(power_from_user);
+    let check=fibonacci_steps(u64::from_str(&args[1]).unwrap(),u64::from_str(&args[2]).unwrap(),num_of_steps);
+    let res= Fr::from(check);
 
     println!("a: {:?}", a);
     println!("b: {:?}", b);
     println!("num_of_steps: {:?}", num_of_steps);
-
-    let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps as usize);
+    let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps as usize,res);
     let elapsed_time = unsafe { START_TIME.unwrap().elapsed() };
     if !result {
         eprintln!("Circuit constraints are not satisfied.");
     } else {
         println!("Circuit constraints are satisfied: your fibonacci can be calculated in the number of steps you entered.");
     }
-    result.
     println!(
         "Total time taken: {}.{:03} seconds",
         elapsed_time.as_secs(),
