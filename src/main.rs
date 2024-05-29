@@ -152,15 +152,15 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize, r
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() != 4 {
+    if args.len() != 5 {
         eprintln!("Usage: {} <a> <b> <num_of_steps>", args[0]);
         return;
     }
     let a = Fr::from_str(&args[1]).unwrap();
     let b = Fr::from_str(&args[2]).unwrap();
-    let power_from_user: u32 = args[3].parse().unwrap();
-    let num_of_steps = 2u32.pow(power_from_user);
-    let check=fibonacci_steps(u64::from_str(&args[1]).unwrap(),u64::from_str(&args[2]).unwrap(),num_of_steps);
+    //let power_from_user: u32 = args[3].parse().unwrap();
+    let num_of_steps: u32 = args[3].parse().unwrap();
+    let check: u64=args[4].parse().unwrap();
     println!("check is {:?}", check);
 
     let res= Fr::from(check);
