@@ -40,6 +40,45 @@ fn fibonacci_steps(a: u64, b: u64, steps: u32) -> u64 {
 
     x
 }
+fn fibonacci_checker<F>(a: FpVar<F>, b:FpVar<F>, number_of_steps: u32, fib_to_check: FpVar<F>)  ->  Result<(), SynthesisError>  {
+    let mut fi_minus_one = a;
+
+    let mut fi_minus_two = b;
+
+    let saved_result = fib_to_check;
+
+        // initialize fi as public input
+        
+        let mut fi = Fr::from(0);
+        // do the loop only when verifying the circuit
+        for _i in 0..number_of_steps-1 {
+            fi = fi_minus_one.clone() + &fi_minus_two;
+            fi.enforce_equal(&(&fi_minus_one + &fi_minus_two))?;
+            fi_minus_two = fi_minus_one;
+            fi_minus_one = fi.clone();
+        }
+        /* 
+        match fi.value() {
+            Ok(val) => unsafe {
+                // Do something with the value
+                println!("Value of fi: {:?}", val.to_string());
+                let val_str = val.to_string();
+                let mut global_str = GLOBAL_STRING.lock().unwrap();
+                *global_str = val_str;
+            },
+            Err(e) => {
+                if e == SynthesisError::AssignmentMissing {
+                    // Handle the AssignmentMissing error
+                } else {
+                    // Handle other types of errors
+                }
+            }
+        }*/
+             fi.enforce_equal(&(&saved_result))?;
+
+        Ok(())
+}
+
 static mut START_TIME: Option<Instant> = None;
 impl<F: PrimeField> ConstraintSynthesizer<F> for FibonacciCircuit<F> {
     fn generate_constraints(mut self, cs: ConstraintSystemRef<F>) -> Result<(), SynthesisError> {
@@ -149,6 +188,9 @@ fn should_verify_fibonacci_circuit_groth16(a: Fr, b: Fr, numb_of_steps: usize, r
     true
 }
 
+fn start_check<const N: usize, ConstraintF: PrimeField> {
+
+}
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -164,22 +206,9 @@ fn main() {
     println!("check is {:?}", check);
 
     let res= Fr::from(check);
-    //let res=Fr::from(55);
     println!("a: {:?}", a);
     println!("b: {:?}", b);
     println!("num_of_steps: {:?}", num_of_steps);
-    let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps as usize,res);
-    let elapsed_time = unsafe { START_TIME.unwrap().elapsed() };
-    if !result {
-        eprintln!("Circuit constraints are not satisfied.");
-    } else {
-        println!("Circuit constraints are satisfied: your fibonacci can be calculated in the number of steps you entered.");
-    }
-    println!(
-        "Total time taken: {}.{:03} seconds",
-        elapsed_time.as_secs(),
-        elapsed_time.subsec_millis()
-    );
-    let global_str = GLOBAL_STRING.lock().unwrap();
-    println!("{}", *global_str);
+  //  let result = should_verify_fibonacci_circuit_groth16(a, b, num_of_steps as usize,res);
+    fibonacci_checker(a,b,num_of_steps,res);
 }
